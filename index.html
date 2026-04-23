@@ -24,10 +24,15 @@ font-family: ‘Exo 2’, sans-serif;
 background: #161b24;
 border-radius: 16px;
 width: 100%;
-max-width: 460px;
-padding: 28px 20px 28px;
+max-width: 960px;
+padding: clamp(20px, 3vw, 48px) clamp(16px, 3vw, 48px);
 position: relative;
 box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+@media (min-width: 600px) {
+body { align-items: center; }
+.card { border-radius: 20px; }
 }
 
 .close-btn {
