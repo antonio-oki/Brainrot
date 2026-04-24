@@ -56,31 +56,31 @@ transition: background 0.2s;
 
 .title {
 font-family: ‘Rajdhani’, sans-serif;
-font-size: 26px;
+font-size: clamp(24px, 3.5vw, 42px);
 font-weight: 700;
 color: #e8eaf0;
 text-align: center;
 letter-spacing: 0.5px;
-margin-bottom: 24px;
+margin-bottom: clamp(16px, 2.5vw, 36px);
 }
 
 /* Stats row */
 .stats-grid {
 display: grid;
 grid-template-columns: repeat(5, 1fr);
-gap: 8px;
-margin-bottom: 24px;
+gap: clamp(6px, 1vw, 14px);
+margin-bottom: clamp(16px, 2.5vw, 32px);
 }
 
 .stat-box {
 background: #1e2535;
-border-radius: 10px;
-padding: 12px 8px 10px;
+border-radius: clamp(8px, 1vw, 14px);
+padding: clamp(10px, 1.5vw, 22px) clamp(6px, 1vw, 16px);
 text-align: center;
 }
 
 .stat-label {
-font-size: 10px;
+font-size: clamp(9px, 1vw, 13px);
 color: #6b7690;
 font-weight: 500;
 text-transform: uppercase;
@@ -91,7 +91,7 @@ line-height: 1.2;
 
 .stat-value {
 font-family: ‘Rajdhani’, sans-serif;
-font-size: 18px;
+font-size: clamp(16px, 2.2vw, 30px);
 font-weight: 700;
 color: #dde1ee;
 line-height: 1;
@@ -101,7 +101,7 @@ line-height: 1;
 .stat-value.teal { color: #2de8b0; }
 
 .stat-sub {
-font-size: 9px;
+font-size: clamp(8px, 0.9vw, 12px);
 color: #6b7690;
 margin-top: 3px;
 }
@@ -109,21 +109,21 @@ margin-top: 3px;
 /* Mutations & Traits section */
 .section {
 background: #1a2030;
-border-radius: 12px;
-padding: 16px 16px 12px;
+border-radius: clamp(10px, 1.2vw, 16px);
+padding: clamp(14px, 2vw, 28px) clamp(14px, 2vw, 28px) clamp(10px, 1.5vw, 20px);
 }
 
 .section-title {
 font-family: ‘Rajdhani’, sans-serif;
-font-size: 15px;
+font-size: clamp(14px, 1.6vw, 22px);
 font-weight: 600;
 color: #c8cdd8;
-margin-bottom: 14px;
+margin-bottom: clamp(10px, 1.5vw, 20px);
 letter-spacing: 0.3px;
 }
 
 .subsection-label {
-font-size: 11px;
+font-size: clamp(10px, 1vw, 14px);
 font-weight: 600;
 color: #8a93a8;
 text-transform: uppercase;
@@ -135,13 +135,13 @@ margin-top: 4px;
 .bar-row {
 display: flex;
 align-items: center;
-gap: 10px;
-margin-bottom: 9px;
+gap: clamp(8px, 1vw, 16px);
+margin-bottom: clamp(7px, 0.9vw, 13px);
 }
 
 .dot {
-width: 10px;
-height: 10px;
+width: clamp(8px, 0.9vw, 13px);
+height: clamp(8px, 0.9vw, 13px);
 border-radius: 50%;
 flex-shrink: 0;
 }
@@ -153,7 +153,7 @@ flex-shrink: 0;
 .dot-yellow  { background: #eab308; }
 
 .spark-icon {
-font-size: 13px;
+font-size: clamp(12px, 1.2vw, 18px);
 flex-shrink: 0;
 }
 .diamond-icon { color: #38bdf8; }
@@ -161,10 +161,10 @@ flex-shrink: 0;
 .trait-icon   { color: #d4a855; }
 
 .bar-name {
-font-size: 13px;
+font-size: clamp(12px, 1.2vw, 18px);
 font-weight: 500;
 color: #c8cdd8;
-min-width: 105px;
+min-width: clamp(90px, 11vw, 160px);
 flex-shrink: 0;
 }
 .bar-name.gold-text    { color: #f5a623; }
@@ -175,7 +175,7 @@ flex-shrink: 0;
 
 .bar-track {
 flex: 1;
-height: 8px;
+height: clamp(6px, 0.8vw, 12px);
 background: #2a3248;
 border-radius: 4px;
 overflow: hidden;
@@ -196,29 +196,29 @@ transition: width 0.6s ease;
 
 .bar-count {
 font-family: ‘Rajdhani’, sans-serif;
-font-size: 13px;
+font-size: clamp(12px, 1.2vw, 18px);
 font-weight: 700;
 color: #c8cdd8;
-min-width: 40px;
+min-width: clamp(36px, 4.5vw, 70px);
 text-align: right;
 flex-shrink: 0;
 }
 
 .person-icon {
 color: #4a5268;
-font-size: 13px;
+font-size: clamp(12px, 1.2vw, 18px);
 flex-shrink: 0;
 }
 
-.divider { height: 1px; background: #252d3d; margin: 10px 0 12px; }
+.divider { height: 1px; background: #252d3d; margin: clamp(8px, 1vw, 16px) 0 clamp(10px, 1.2vw, 18px); }
 
 .traits-header {
-font-size: 11px;
+font-size: clamp(10px, 1vw, 14px);
 font-weight: 600;
 color: #8a93a8;
 text-transform: uppercase;
 letter-spacing: 0.6px;
-margin-bottom: 10px;
+margin-bottom: clamp(8px, 1vw, 14px);
 }
 .traits-header span { color: #5a6480; font-weight: 400; }
 </style>
