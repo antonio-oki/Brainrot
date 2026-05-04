@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iWallet Pro</title>
+    <title>Quantum Wallet</title>
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root {
             --ios-bg: #000000;
@@ -19,209 +20,312 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
         body { background-color: var(--ios-bg); color: var(--ios-text); margin: 0; padding: 0; overflow: hidden; height: 100vh; }
 
-        /* --- Header --- */
-        header { padding: 60px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
+        header { padding: 60px 20px 10px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 10; background: var(--ios-bg); }
         header h1 { font-size: 34px; font-weight: 700; margin: 0; }
-        .add-btn { font-size: 28px; color: var(--ios-blue); cursor: pointer; }
+        .add-btn { font-size: 28px; color: var(--ios-blue); cursor: pointer; padding: 5px 10px; }
 
-        /* --- Main Content --- */
-        main { height: calc(100vh - 180px); overflow-y: auto; padding: 10px 20px; }
+        main { height: 100vh; overflow-y: auto; padding: 120px 20px 100px; }
 
-        /* --- Card Swiper --- */
-        .card-container {
-            display: flex; gap: 15px; overflow-x: auto; scroll-snap-type: x mandatory;
-            padding: 10px 0 25px; scrollbar-width: none;
-        }
-        .card-container::-webkit-scrollbar { display: none; }
+        /* Card Section */
+        .card-carousel { display: flex; gap: 15px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 0 25px; scrollbar-width: none; }
+        .card-carousel::-webkit-scrollbar { display: none; }
+        .card { min-width: 85vw; height: 200px; border-radius: 18px; padding: 25px; scroll-snap-align: center; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        .card-vendor { font-weight: 600; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .card-number { font-family: monospace; font-size: 20px; letter-spacing: 2px; }
+        
+        /* Quantum Wallet Balance Card */
+        .card.main-wallet { background: linear-gradient(135deg, #2c3e50, #000000); border: 1px solid #333; }
+        .card.main-wallet .card-balance { font-size: 36px; font-weight: 700; }
 
-        .card {
-            min-width: 85vw; height: 200px; border-radius: 18px; padding: 20px;
-            scroll-snap-align: center; display: flex; flex-direction: column;
-            justify-content: space-between; transition: transform 0.2s;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        /* Added Cards */
+        .card.external-card { background: linear-gradient(135deg, #e0e0e0, #ffffff); color: #000; }
 
-        .card-name { font-size: 18px; font-weight: 600; opacity: 0.9; }
-        .card-balance { font-size: 28px; font-weight: 700; }
-        .card-footer { display: flex; justify-content: space-between; font-family: monospace; opacity: 0.8; }
-
-        /* --- Actions --- */
+        /* Actions */
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-        .btn {
-            background: var(--ios-card-bg); border: none; color: var(--ios-blue);
-            padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .btn { background: var(--ios-card-bg); border: none; color: var(--ios-blue); padding: 18px; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:active { background: #2c2c2e; }
 
-        /* --- Transaction List --- */
-        .tx-list { margin-top: 20px; }
-        .tx-item {
-            background: var(--ios-card-bg); padding: 12px 15px; border-radius: 14px;
-            display: flex; align-items: center; margin-bottom: 8px;
-        }
-        .tx-icon { width: 40px; height: 40px; border-radius: 10px; background: #2c2c2e; 
-                   display: flex; align-items: center; justify-content: center; margin-right: 12px; }
+        /* Activity */
+        .tx-list { margin-top: 25px; }
+        .tx-item { background: var(--ios-card-bg); padding: 15px; border-radius: 16px; display: flex; align-items: center; margin-bottom: 10px; }
+        .tx-icon { width: 45px; height: 45px; border-radius: 12px; background: #2c2c2e; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px; }
         .tx-info { flex: 1; }
-        .tx-title { font-weight: 600; font-size: 15px; }
-        .tx-subtitle { font-size: 12px; color: var(--ios-gray); }
-        .tx-amt { font-weight: 700; }
+        .tx-title { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+        .tx-subtitle { font-size: 13px; color: var(--ios-gray); }
+        .tx-amt { font-weight: 700; font-size: 16px; }
         .tx-amt.neg { color: #fff; }
         .tx-amt.pos { color: var(--ios-green); }
 
-        /* --- Modal --- */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
-            padding: 60px 20px; z-index: 100;
-        }
-        .modal.active { display: flex; }
-        .modal input {
-            background: #2c2c2e; border: none; border-radius: 10px; padding: 15px;
-            color: #fff; font-size: 17px; margin-bottom: 15px; width: 100%;
-        }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .cancel { color: var(--ios-blue); }
-        .save { font-weight: 700; color: var(--ios-blue); }
+        /* Modals (iOS Sheet Style) */
+        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 90%; background: #1c1c1e; border-radius: 20px 20px 0 0; transition: bottom 0.3s ease-out; z-index: 100; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .modal.active { bottom: 0; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .modal-header h2 { margin: 0; font-size: 20px; }
+        .cancel { color: var(--ios-blue); cursor: pointer; }
+        .action-done { font-weight: 700; color: var(--ios-blue); cursor: pointer; }
 
-        nav {
-            position: fixed; bottom: 0; width: 100%; height: 85px;
-            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            display: flex; justify-content: space-around; padding-top: 10px; border-top: 0.5px solid #38383a;
-        }
+        .form-group { margin-bottom: 20px; }
+        .modal label { display: block; color: var(--ios-gray); margin-bottom: 8px; font-size: 14px; text-transform: uppercase; }
+        .modal input { background: #2c2c2e; border: 0.5px solid #3a3a3c; border-radius: 10px; padding: 15px; color: #fff; font-size: 17px; width: 100%; }
+        
+        /* Stripe Element Container */
+        #card-element { background: #2c2c2e; border: 0.5px solid #3a3a3c; border-radius: 10px; padding: 15px; }
+
+        nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 0.5px solid #38383a; z-index: 10; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>Wallet</h1>
-    <div class="add-btn" onclick="openModal('card')">+</div>
+    <div class="add-btn" onclick="openModal('addCard')">+</div>
 </header>
 
 <main>
-    <div class="card-container" id="cardList">
-        <!-- Cards injected here -->
-    </div>
+    <div class="card-carousel" id="cardList">
+        <div class="card main-wallet">
+            <div class="card-vendor">Quantum Balance</div>
+            <div class="card-balance" id="walletBalance">$0.00</div>
+            <div class="card-footer card-number">QM ID: 9982-1102</div>
+        </div>
+        </div>
 
     <div class="actions">
-        <button class="btn" onclick="openModal('send')"><span>↑</span> Send</button>
-        <button class="btn" onclick="alert('QR Scanner would open')"><span>📷</span> Scan</button>
+        <button class="btn" onclick="openModal('sendMoney')"><span>↑</span> Send Money</button>
+        <button class="btn" onclick="openModal('payout')"><span>↓</span> Payout to Card</button>
     </div>
 
     <div class="tx-list" id="txList">
-        <h3 style="font-size: 20px; margin-bottom: 15px;">Activity</h3>
-        <!-- Transactions injected here -->
-    </div>
+        <h3 style="font-size: 22px; margin: 0 0 15px;">Activity</h3>
+        </div>
 </main>
 
-<!-- Add Card Modal -->
-<div id="cardModal" class="modal">
+<div id="addCardModal" class="modal">
     <div class="modal-header">
         <span class="cancel" onclick="closeModals()">Cancel</span>
-        <span class="save" onclick="addCard()">Add Card</span>
+        <h2>Add Credit/Debit Card</h2>
+        <span class="action-done" onclick="saveCard()">Add</span>
     </div>
-    <input type="text" id="cardLabel" placeholder="Bank Name (e.g. Chase)">
-    <input type="number" id="cardInitBalance" placeholder="Initial Balance ($)">
-    <input type="color" id="cardColor" value="#0a84ff" style="height: 50px;">
+    <div class="form-group">
+        <label>Cardholder Name</label>
+        <input type="text" id="cardName" placeholder="John Doe">
+    </div>
+    <div class="form-group">
+        <label>Card Details</label>
+        <div id="card-element">
+            <input type="text" id="fakeCardNum" placeholder="1234 5678 9101 1121">
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <input type="text" id="fakeCardExpiry" placeholder="MM/YY" style="width:50%">
+                <input type="text" id="fakeCardCvc" placeholder="CVC" style="width:50%">
+            </div>
+        </div>
+        <p style="font-size:12px; color:var(--ios-gray); margin-top:10px;">Your card data is tokenized securely via QuantumPay. We never store your full card number.</p>
+    </div>
 </div>
 
-<!-- Send Money Modal -->
-<div id="sendModal" class="modal">
+<div id="sendMoneyModal" class="modal">
     <div class="modal-header">
         <span class="cancel" onclick="closeModals()">Cancel</span>
-        <span class="save" onclick="sendMoney()">Send</span>
+        <h2>Send Money</h2>
+        <span class="action-done" onclick="handleSendMoney()">Send</span>
     </div>
-    <input type="text" id="sendTo" placeholder="To: Name or @username">
-    <input type="number" id="sendAmount" placeholder="Amount ($)">
+    <div class="form-group">
+        <label>Recipient ID or Phone</label>
+        <input type="text" id="sendTo" placeholder="e.g. 555-0199 or user@email.com">
+    </div>
+    <div class="form-group">
+        <label>Amount ($)</label>
+        <input type="number" id="sendAmount" placeholder="0.00">
+    </div>
+</div>
+
+<div id="payoutModal" class="modal">
+    <div class="modal-header">
+        <span class="cancel" onclick="closeModals()">Cancel</span>
+        <h2>Payout to Card</h2>
+        <span class="action-done" onclick="handlePayout()">Withdraw</span>
+    </div>
+    <div class="form-group">
+        <label>Withdraw From</label>
+        <input type="text" value="Quantum Balance" disabled>
+    </div>
+    <div class="form-group">
+        <label>Withdraw To</label>
+        <select id="payoutCardSelect" style="background: #2c2c2e; border: 0.5px solid #3a3a3c; border-radius: 10px; padding: 15px; color: #fff; font-size: 17px; width: 100%;">
+            <option value="">Select a card...</option>
+            </select>
+    </div>
+    <div class="form-group">
+        <label>Amount ($)</label>
+        <input type="number" id="payoutAmount" placeholder="0.00">
+    </div>
 </div>
 
 <nav>
-    <div style="color: var(--ios-blue); text-align:center;"><i>💳</i><br><small>Wallet</small></div>
-    <div style="color: var(--ios-gray); text-align:center;"><i>🕒</i><br><small>History</small></div>
+    <div style="color: var(--ios-blue); text-align:center; font-size:24px;">💳<br><span style="font-size:10px;">Wallet</span></div>
+    <div style="color: var(--ios-gray); text-align:center; font-size:24px;">📊<br><span style="font-size:10px;">Analytics</span></div>
+    <div style="color: var(--ios-gray); text-align:center; font-size:24px;">⚙️<br><span style="font-size:10px;">Settings</span></div>
 </nav>
 
 <script>
-    // State Management
-    let data = JSON.parse(localStorage.getItem('walletData')) || {
-        cards: [],
-        transactions: []
+    // --- Mock Backend State ---
+    // In a real app, this data comes from your database API
+    let walletState = JSON.parse(localStorage.getItem('quantumWalletRealMock')) || {
+        balance: 1500.00, // Available digital balance
+        externalCards: [], // Stored Card Tokens (NOT raw numbers)
+        transactions: [
+            { id: 1, type: 'dep', title: 'Salary Check', date: 'Oct 28', amt: 3200.00 },
+            { id: 2, type: 'send', title: 'To: @brian', date: 'Yesterday', amt: -55.00 },
+        ]
     };
 
-    function save() {
-        localStorage.setItem('walletData', JSON.stringify(data));
+    function saveState() {
+        localStorage.setItem('quantumWalletRealMock', JSON.stringify(walletState));
         render();
     }
 
+    // --- UI Logic ---
     function openModal(type) {
         document.getElementById(type + 'Modal').classList.add('active');
+        if(type === 'payout') populatePayoutCards();
     }
 
     function closeModals() {
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
     }
 
-    function addCard() {
-        const name = document.getElementById('cardLabel').value;
-        const bal = parseFloat(document.getElementById('cardInitBalance').value);
-        const color = document.getElementById('cardColor').value;
-
-        if (!name || isNaN(bal)) return;
-
-        data.cards.push({ id: Date.now(), name, balance: bal, color });
-        save();
-        closeModals();
+    function populatePayoutCards() {
+        const select = document.getElementById('payoutCardSelect');
+        select.innerHTML = '<option value="">Select a card...</option>';
+        walletState.externalCards.forEach(card => {
+            select.innerHTML += `<option value="${card.token}">${card.brand} •••• ${card.last4}</option>`;
+        });
     }
 
-    function sendMoney() {
+    // --- API/Simulation Logic ---
+
+    async function saveCard() {
+        // --- REAL WORLD MECHANIC ---
+        // 1. Send raw card details (name, num, expiry, cvc) directly to Stripe API.
+        // 2. Stripe returns a secure 'token' (e.g., 'tok_1Nabcdef...').
+        // 3. Send that token and John Doe's name to YOUR backend.
+        // 4. Backend stores the token, NOT the card number.
+
+        const name = document.getElementById('cardName').value;
+        const fakeNum = document.getElementById('fakeCardNum').value; // In real life, use Stripe Elements
+
+        if (!name || !fakeNum) { alert('Please enter card details'); return; }
+
+        // MOCKING THE TOKENIZATION
+        // We simulate getting a token from a processor
+        const mockToken = 'tok_mock_' + Date.now();
+        const last4 = fakeNum.slice(-4);
+        const brand = (fakeNum[0] === '4') ? 'Visa' : 'Mastercard';
+
+        // Saving the tokenized card to state
+        walletState.externalCards.push({ 
+            token: mockToken, 
+            name: name,
+            brand: brand,
+            last4: last4
+        });
+
+        saveState();
+        closeModals();
+        alert(`Success: Card •••• ${last4} was tokenized and added securely.`);
+    }
+
+    async function handleSendMoney() {
         const to = document.getElementById('sendTo').value;
         const amt = parseFloat(document.getElementById('sendAmount').value);
 
-        if (data.cards.length === 0) { alert("Add a card first!"); return; }
-        if (!to || isNaN(amt)) return;
+        if (!to || isNaN(amt) || amt <= 0) { alert('Invalid details'); return; }
+        if (amt > walletState.balance) { alert('Insufficient funds in Quantum Balance.'); return; }
 
-        // Deduct from the first card (active card logic)
-        data.cards[0].balance -= amt;
-        data.transactions.unshift({
+        // --- REAL WORLD MECHANIC ---
+        // Send request to backend: { recipient: to, amount: amt, source: 'digital_wallet' }
+        // Backend verifies recipient, checks balance, moves funds in database, returns success.
+
+        // MOCKING THE BACKEND TRANSFER
+        walletState.balance -= amt;
+        walletState.transactions.unshift({
             id: Date.now(),
+            type: 'send',
             title: `To: ${to}`,
-            amt: -amt,
-            date: 'Just now'
+            date: 'Just Now',
+            amt: -amt
         });
 
-        save();
+        saveState();
         closeModals();
     }
 
-    function render() {
-        const cardList = document.getElementById('cardList');
-        const txList = document.getElementById('txList');
+    async function handlePayout() {
+        const cardToken = document.getElementById('payoutCardSelect').value;
+        const amt = parseFloat(document.getElementById('payoutAmount').value);
 
-        // Render Cards
-        cardList.innerHTML = data.cards.length ? '' : '<p style="color:gray">No cards added. Tap + to start.</p>';
-        data.cards.forEach(card => {
+        if (!cardToken || isNaN(amt) || amt <= 0) { alert('Invalid payout details'); return; }
+        if (amt > walletState.balance) { alert('Insufficient funds'); return; }
+
+        // --- REAL WORLD MECHANIC ---
+        // Send request to backend: { amount: amt, destination_card_token: cardToken }
+        // Backend initiates a payout via processor (e.g., Stripe Payouts API).
+        // Funds are withdrawn from digital balance and sent to the card's banking network.
+
+        // MOCKING THE PAYOUT
+        walletState.balance -= amt;
+        const targetCard = walletState.externalCards.find(c => c.token === cardToken);
+        
+        walletState.transactions.unshift({
+            id: Date.now(),
+            type: 'payout',
+            title: `Payout: ${targetCard.brand} ••${targetCard.last4}`,
+            date: 'Just Now',
+            amt: -amt
+        });
+
+        saveState();
+        closeModals();
+        alert(`Payout of $${amt.toFixed(2)} initiated to •••• ${targetCard.last4}.`);
+    }
+
+    // --- Rendering ---
+    function render() {
+        // Render Balance
+        document.getElementById('walletBalance').innerText = `$${walletState.balance.toFixed(2)}`;
+
+        // Render External Cards
+        const cardList = document.getElementById('cardList');
+        cardList.innerHTML = `
+            <div class="card main-wallet">
+                <div class="card-vendor">Quantum Balance</div>
+                <div class="card-balance">$${walletState.balance.toFixed(2)}</div>
+                <div class="card-footer card-number">QM ID: 9982-1102</div>
+            </div>
+        `;
+        walletState.externalCards.forEach(card => {
             cardList.innerHTML += `
-                <div class="card" style="background: ${card.color}">
-                    <div class="card-name">${card.name}</div>
-                    <div class="card-balance">$${card.balance.toLocaleString()}</div>
-                    <div class="card-footer">
-                        <span>•••• 4242</span>
-                        <span>VISA</span>
-                    </div>
+                <div class="card external-card">
+                    <div class="card-vendor">${card.brand}</div>
+                    <div class="card-footer card-number">•••• ${card.last4}</div>
                 </div>
             `;
         });
 
         // Render Transactions
-        txList.innerHTML = '<h3 style="font-size: 20px; margin-bottom: 15px;">Activity</h3>';
-        data.transactions.forEach(tx => {
+        const txList = document.getElementById('txList');
+        txList.innerHTML = '<h3 style="font-size: 22px; margin: 0 0 15px;">Activity</h3>';
+        walletState.transactions.forEach(tx => {
+            const icon = (tx.type === 'dep') ? '💰' : (tx.type === 'send' ? '💸' : '🏦');
             txList.innerHTML += `
                 <div class="tx-item">
-                    <div class="tx-icon">${tx.amt > 0 ? '💰' : '💸'}</div>
+                    <div class="tx-icon">${icon}</div>
                     <div class="tx-info">
                         <div class="tx-title">${tx.title}</div>
                         <div class="tx-subtitle">${tx.date}</div>
                     </div>
                     <div class="tx-amt ${tx.amt > 0 ? 'pos' : 'neg'}">
-                        ${tx.amt > 0 ? '+' : ''}$${Math.abs(tx.amt).toFixed(2)}
+                        ${tx.amt > 0 ? '+' : ''}${tx.amt.toFixed(2)}
                     </div>
                 </div>
             `;
