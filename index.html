@@ -169,7 +169,8 @@
   /* Display canvas */
   #displayCanvas, #touchCanvas {
     width: 100%;
-    height: min(58vh, 560px);
+    /* Use dvh to avoid jumping when iOS Safari address bar collapses */
+    height: min(58dvh, 560px); 
     display: block;
     background: #000;
     border-radius: 18px;
@@ -206,7 +207,7 @@
 
   video {
     width: 100%;
-    max-height: 52vh;
+    max-height: 52dvh;
     background: #000;
     border-radius: 18px;
     border: 1px solid var(--border);
@@ -249,17 +250,6 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 10px;
-  }
-
-  .touchPoint {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.95);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    box-shadow: 0 0 16px rgba(124,156,255,0.45);
   }
 </style>
 </head>
@@ -307,7 +297,7 @@
           <input id="speed" type="range" min="1" max="10" value="3" />
           <span class="pill" id="speedLabel">3s</span>
         </div>
-        <div class="footerNote">Tap left/right on the canvas or use the buttons.</div>
+        <div class="footerNote">Tap left/right on the canvas or use the buttons. Note: Fullscreen API is limited on iOS.</div>
       </div>
     </div>
   </section>
@@ -405,7 +395,7 @@
       <div class="card">
         <h2>Device / battery / storage</h2>
         <div class="list" id="deviceList"></div>
-        <div class="footerNote">Values depend on browser support. Battery and storage may not be available on every device.</div>
+        <div class="footerNote">Values depend on browser support. Battery API is restricted on iOS.</div>
       </div>
     </div>
   </section>
@@ -433,8 +423,9 @@
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-  const tabs = document.getElementById('tabs');
+  const tabs = $('tabs');
   const views = [...document.querySelectorAll('section.view')];
+  const displaySection = $('displayView'); // Explicitly mapped to prevent global-scope animation errors
 
   function showView(id) {
     views.forEach(v => v.classList.toggle('active', v.id === id));
@@ -462,7 +453,7 @@
   let autoTimer = null;
   let displayStart = performance.now();
 
-  function resizeCanvas(canvas, ctx, fixedHeightRatio = 0.58) {
+  function resizeCanvas(canvas, ctx) {
     const ratio = Math.min(window.devicePixelRatio || 1, 2.5);
     const rect = canvas.getBoundingClientRect();
     canvas.width = Math.max(1, Math.floor(rect.width * ratio));
@@ -706,13 +697,23 @@
   autoBtn.onclick = toggleAuto;
   speed.oninput = () => {
     updateSpeed();
-    if (autoOn) toggleAuto(), toggleAuto();
+    if (autoOn) { toggleAuto(); toggleAuto(); }
   };
+  
   fullscreenBtn.onclick = async () => {
     try {
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      else await document.exitFullscreen();
-    } catch {}
+      const el = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+        else alert('Fullscreen API is unsupported by iOS Safari for standard web elements.');
+      } else {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+      }
+    } catch (e) {
+      alert('Fullscreen request was denied. (This is a common iOS restriction).');
+    }
   };
 
   displayCanvas.addEventListener('click', (e) => {
@@ -781,8 +782,6 @@
 
   function drawTouchPoints() {
     drawTouchBase();
-    const w = touchCanvas.clientWidth;
-    const h = touchCanvas.clientHeight;
     touches.forEach((p) => {
       tctx.beginPath();
       tctx.arc(p.x, p.y, 28, 0, Math.PI * 2);
@@ -814,32 +813,39 @@
     }
   }
 
-  function updateTouchInfo(lastEvent, e) {
+  function getTouchPos(canvas, e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function updateTouchInfo(lastEvent, pos = null) {
     touchCount.textContent = `Touches: ${touches.size}`;
     touchType.textContent = `Last: ${lastEvent}`;
-    if (e) touchPos.textContent = `Pos: ${Math.round(e.clientX)}, ${Math.round(e.clientY)}`;
+    if (pos) touchPos.textContent = `Pos: ${Math.round(pos.x)}, ${Math.round(pos.y)}`;
   }
 
   touchCanvas.addEventListener('pointerdown', (e) => {
     touchCanvas.setPointerCapture?.(e.pointerId);
-    touches.set(e.pointerId, { id: e.pointerId, x: e.offsetX, y: e.offsetY });
-    updateTouchInfo('down', e);
+    const pos = getTouchPos(touchCanvas, e);
+    touches.set(e.pointerId, { id: e.pointerId, x: pos.x, y: pos.y });
+    updateTouchInfo('down', pos);
     drawTouchPoints();
   });
   touchCanvas.addEventListener('pointermove', (e) => {
     if (!touches.has(e.pointerId)) return;
-    touches.set(e.pointerId, { id: e.pointerId, x: e.offsetX, y: e.offsetY });
-    updateTouchInfo('move', e);
+    const pos = getTouchPos(touchCanvas, e);
+    touches.set(e.pointerId, { id: e.pointerId, x: pos.x, y: pos.y });
+    updateTouchInfo('move', pos);
     drawTouchPoints();
   });
   touchCanvas.addEventListener('pointerup', (e) => {
     touches.delete(e.pointerId);
-    updateTouchInfo('up', e);
+    updateTouchInfo('up');
     drawTouchPoints();
   });
   touchCanvas.addEventListener('pointercancel', (e) => {
     touches.delete(e.pointerId);
-    updateTouchInfo('cancel', e);
+    updateTouchInfo('cancel');
     drawTouchPoints();
   });
 
@@ -879,7 +885,6 @@
       osc.connect(gain);
       gain.connect(ac.destination);
     }
-
     osc.start();
   }
 
@@ -895,7 +900,14 @@
   $('toneRight').onclick = () => playTone('right', 880);
   $('toneBoth').onclick = () => playTone('both', 740);
   $('stopTone').onclick = stopTone;
-  $('vibrateBtn').onclick = () => navigator.vibrate?.(40);
+  
+  $('vibrateBtn').onclick = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(40);
+    } else {
+      alert("Vibration API is unsupported by iOS devices.");
+    }
+  };
 
   // ---------- MIC ----------
   const micStatus = $('micStatus');
@@ -911,8 +923,9 @@
   let micPeakHold = 0;
 
   function drawMicMeter(level = 0) {
-    const w = micMeter.width;
-    const h = micMeter.height;
+    // FIX: Using clientWidth/clientHeight resolves logical vs physical scale mismatch bug
+    const w = micMeter.clientWidth || 800;
+    const h = micMeter.clientHeight || 40;
     mctx.clearRect(0,0,w,h);
     mctx.fillStyle = '#111';
     mctx.fillRect(0,0,w,h);
@@ -1000,6 +1013,7 @@
         audio: false
       });
       camVideo.srcObject = camStream;
+      camVideo.play().catch(e => console.log('Autoplay prevented', e)); // Fixed autoplay block
       camStatus.textContent = 'Camera: on';
       camStatus.className = 'pill status-good';
     } catch {
@@ -1076,7 +1090,6 @@
 
   // ---------- DEVICE ----------
   const deviceList = $('deviceList');
-  const batteryState = { level: null, charging: null };
 
   function addDeviceRow(label, value) {
     const div = document.createElement('div');
@@ -1112,28 +1125,17 @@
     if (navigator.getBattery) {
       try {
         const b = await navigator.getBattery();
-        batteryState.level = b.level;
-        batteryState.charging = b.charging;
         addDeviceRow('Battery level', Math.round(b.level * 100) + '%');
         addDeviceRow('Charging', b.charging ? 'Yes' : 'No');
       } catch {
-        addDeviceRow('Battery', 'Unavailable');
+        addDeviceRow('Battery', 'Unavailable (Restricted on iOS)');
       }
     } else {
-      addDeviceRow('Battery', 'Unavailable');
+      addDeviceRow('Battery', 'Unavailable (Restricted on iOS)');
     }
   }
 
   refreshDeviceInfo();
-
-  // Live battery update if available
-  if (navigator.getBattery) {
-    navigator.getBattery().then((b) => {
-      const updateBattery = () => refreshDeviceInfo();
-      b.addEventListener('levelchange', updateBattery);
-      b.addEventListener('chargingchange', updateBattery);
-    }).catch(() => {});
-  }
 
   // ---------- PERFORMANCE ----------
   const fpsVal = $('fpsVal');
@@ -1151,7 +1153,7 @@
     fpsSmooth = fpsSmooth ? fpsSmooth * 0.9 + fps * 0.1 : fps;
     fpsVal.textContent = Math.round(fpsSmooth) + ' fps';
 
-    if (displayView.classList.contains('active')) drawDisplay();
+    if (displaySection.classList.contains('active')) drawDisplay();
     requestAnimationFrame(animate);
   }
 
