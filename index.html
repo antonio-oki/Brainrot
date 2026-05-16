@@ -1,339 +1,850 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quantum Wallet</title>
-    <script src="https://js.stripe.com/v3/"></script>
-    <style>
-        :root {
-            --ios-bg: #000000;
-            --ios-card-bg: #1c1c1e;
-            --ios-blue: #0a84ff;
-            --ios-green: #30d158;
-            --ios-red: #ff453a;
-            --ios-gray: #8e8e93;
-            --ios-text: #ffffff;
-            --glass: rgba(28, 28, 30, 0.8);
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
-        body { background-color: var(--ios-bg); color: var(--ios-text); margin: 0; padding: 0; overflow: hidden; height: 100vh; }
-
-        header { padding: 60px 20px 10px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 10; background: var(--ios-bg); }
-        header h1 { font-size: 34px; font-weight: 700; margin: 0; }
-        .add-btn { font-size: 28px; color: var(--ios-blue); cursor: pointer; padding: 5px 10px; }
-
-        main { height: 100vh; overflow-y: auto; padding: 120px 20px 100px; }
-
-        /* Card Section */
-        .card-carousel { display: flex; gap: 15px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 0 25px; scrollbar-width: none; }
-        .card-carousel::-webkit-scrollbar { display: none; }
-        .card { min-width: 85vw; height: 200px; border-radius: 18px; padding: 25px; scroll-snap-align: center; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-        .card-vendor { font-weight: 600; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
-        .card-number { font-family: monospace; font-size: 20px; letter-spacing: 2px; }
-        
-        /* Quantum Wallet Balance Card */
-        .card.main-wallet { background: linear-gradient(135deg, #2c3e50, #000000); border: 1px solid #333; }
-        .card.main-wallet .card-balance { font-size: 36px; font-weight: 700; }
-
-        /* Added Cards */
-        .card.external-card { background: linear-gradient(135deg, #e0e0e0, #ffffff); color: #000; }
-
-        /* Actions */
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-        .btn { background: var(--ios-card-bg); border: none; color: var(--ios-blue); padding: 18px; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn:active { background: #2c2c2e; }
-
-        /* Activity */
-        .tx-list { margin-top: 25px; }
-        .tx-item { background: var(--ios-card-bg); padding: 15px; border-radius: 16px; display: flex; align-items: center; margin-bottom: 10px; }
-        .tx-icon { width: 45px; height: 45px; border-radius: 12px; background: #2c2c2e; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 20px; }
-        .tx-info { flex: 1; }
-        .tx-title { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
-        .tx-subtitle { font-size: 13px; color: var(--ios-gray); }
-        .tx-amt { font-weight: 700; font-size: 16px; }
-        .tx-amt.neg { color: #fff; }
-        .tx-amt.pos { color: var(--ios-green); }
-
-        /* Modals (iOS Sheet Style) */
-        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 90%; background: #1c1c1e; border-radius: 20px 20px 0 0; transition: bottom 0.3s ease-out; z-index: 100; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-        .modal.active { bottom: 0; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .modal-header h2 { margin: 0; font-size: 20px; }
-        .cancel { color: var(--ios-blue); cursor: pointer; }
-        .action-done { font-weight: 700; color: var(--ios-blue); cursor: pointer; }
-
-        .form-group { margin-bottom: 20px; }
-        .modal label { display: block; color: var(--ios-gray); margin-bottom: 8px; font-size: 14px; text-transform: uppercase; }
-        .modal input { background: #2c2c2e; border: 0.5px solid #3a3a3c; border-radius: 10px; padding: 15px; color: #fff; font-size: 17px; width: 100%; }
-        
-        /* Stripe Element Container */
-        #card-element { background: #2c2c2e; border: 0.5px solid #3a3a3c; border-radius: 10px; padding: 15px; }
-
-        nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding-top: 10px; border-top: 0.5px solid #38383a; z-index: 10; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Night Shift</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121923;
+      --panel2:#1a2330;
+      --text:#e8eef7;
+      --muted:#91a4bd;
+      --green:#68f08f;
+      --yellow:#ffd76a;
+      --red:#ff6b6b;
+      --blue:#76b7ff;
+      --border:#2a394d;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top, #182131 0%, var(--bg) 70%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .game{
+      width:min(1100px,100%);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+      border:1px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 24px 80px rgba(0,0,0,.45);
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:14px 18px;
+      background:rgba(255,255,255,.03);
+      border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+    header .title{
+      font-weight:800;
+      letter-spacing:.6px;
+    }
+    header .stats{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .wrap{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      min-height:640px;
+    }
+    .main{
+      padding:18px;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:16px;
+      border-right:1px solid var(--border);
+    }
+    .scene{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:16px;
+      min-height:420px;
+      position:relative;
+      overflow:hidden;
+    }
+    .office, .camera{
+      position:absolute;
+      inset:0;
+      padding:18px;
+      display:none;
+    }
+    .office.active, .camera.active{display:block;}
+    .office{
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.35)),
+        radial-gradient(circle at 50% 100%, rgba(120,170,255,.18), transparent 35%);
+    }
+    .office .hallway{
+      position:absolute;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:min(70%, 460px);
+      height:72%;
+      border-left:2px solid rgba(255,255,255,.06);
+      border-right:2px solid rgba(255,255,255,.06);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.1));
+      border-radius:20px 20px 0 0;
+    }
+    .desk{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      width:240px;
+      height:72px;
+      border-radius:16px;
+      background:linear-gradient(180deg,#4c392d,#34261f);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 10px 20px rgba(0,0,0,.35);
+    }
+    .desk::before, .desk::after{
+      content:"";
+      position:absolute;
+      bottom:-18px;
+      width:18px;
+      height:20px;
+      background:#2a1d17;
+      border-radius:0 0 8px 8px;
+    }
+    .desk::before{left:26px}
+    .desk::after{right:26px}
+    .door{
+      position:absolute;
+      top:56px;
+      width:112px;
+      height:250px;
+      border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg,#1b2432,#10151d);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .door.left{left:18px}
+    .door.right{right:18px}
+    .door span{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+      letter-spacing:1px;
+      opacity:.85;
+    }
+    .door.closed{
+      box-shadow:inset 0 0 0 2px rgba(255,215,106,.35), 0 0 20px rgba(255,215,106,.08);
+    }
+    .door.closed::after{
+      content:"SHUT";
+      position:absolute;
+      bottom:12px;
+      left:50%;
+      transform:translateX(-50%);
+      color:var(--yellow);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:2px;
+    }
+    .door.open::after{
+      content:"OPEN";
+      position:absolute;
+      bottom:12px;
+      left:50%;
+      transform:translateX(-50%);
+      color:var(--green);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:2px;
+    }
+    .camFrame{
+      display:grid;
+      grid-template-columns:1fr 250px;
+      gap:14px;
+      height:100%;
+    }
+    .camView{
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:
+        linear-gradient(180deg, rgba(120,170,255,.08), rgba(0,0,0,.1)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 2px, rgba(0,0,0,0) 2px 5px);
+      padding:14px;
+      position:relative;
+      overflow:hidden;
+      min-height:360px;
+    }
+    .camView::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at center, transparent 0 45%, rgba(0,0,0,.18) 100%);
+      pointer-events:none;
+    }
+    .camTop{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .camName{
+      font-size:22px;
+      font-weight:800;
+      margin:4px 0 10px;
+    }
+    .camDesc{
+      color:#d4e2f8;
+      max-width:560px;
+      line-height:1.5;
+    }
+    .camera-feed{
+      margin-top:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:210px;
+      border:1px dashed rgba(255,255,255,.12);
+      border-radius:14px;
+      background:rgba(0,0,0,.15);
+      font-size:20px;
+      text-align:center;
+      padding:16px;
+    }
+    .camera-feed .tiny{
+      display:block;
+      margin-top:8px;
+      font-size:14px;
+      color:var(--muted);
+    }
+    .camPanel{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+    }
+    .camPanel h3{
+      margin:0 0 10px;
+      font-size:16px;
+    }
+    .camList{
+      display:grid;
+      gap:8px;
+    }
+    button{
+      font:inherit;
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,#243244,#192332);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      transition:.15s transform,.15s opacity,.15s border-color;
+    }
+    button:hover{transform:translateY(-1px); border-color:#43607f;}
+    button:active{transform:translateY(0px); opacity:.9}
+    button.active{
+      border-color:rgba(104,240,143,.7);
+      box-shadow:0 0 0 2px rgba(104,240,143,.12) inset;
+    }
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 0 0;
+    }
+    .controls .group{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .status{
+      background:var(--panel);
+      border-top:1px solid var(--border);
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+    .meter{
+      height:18px;
+      background:#0f1520;
+      border:1px solid var(--border);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .meter > div{
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg, var(--green), #c8ff72);
+      transition:width .2s linear;
+    }
+    .meter.power-low > div{background:linear-gradient(90deg, var(--yellow), #ff9f5a);}
+    .meter.power-empty > div{background:linear-gradient(90deg, var(--red), #ff8b8b);}
+    .log{
+      min-height:120px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      color:#d7e2f2;
+      line-height:1.5;
+      white-space:pre-wrap;
+    }
+    .side{
+      padding:18px;
+      background:rgba(255,255,255,.02);
+      display:grid;
+      gap:16px;
+      align-content:start;
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+    }
+    .card h3{
+      margin:0 0 10px;
+      font-size:16px;
+    }
+    .small{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .anim{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+    .anim .row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:8px 10px;
+      background:rgba(255,255,255,.03);
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.05);
+      font-size:13px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      color:#dce8fa;
+    }
+    .tag.green{color:var(--green)}
+    .tag.yellow{color:var(--yellow)}
+    .tag.red{color:var(--red)}
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      background:rgba(0,0,0,.78);
+      z-index:20;
+      padding:20px;
+    }
+    .overlay.active{display:flex;}
+    .overlay h1{
+      margin:0 0 10px;
+      font-size:44px;
+      letter-spacing:2px;
+    }
+    .overlay p{
+      margin:0;
+      color:#d5dfef;
+      font-size:18px;
+    }
+    @media (max-width: 900px){
+      .wrap{grid-template-columns:1fr}
+      .main{border-right:none; border-bottom:1px solid var(--border)}
+      .camFrame{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
+  <div class="game">
+    <header>
+      <div class="title">NIGHT SHIFT</div>
+      <div class="stats">
+        <div>Time: <span id="time">12 AM</span></div>
+        <div>Power: <span id="powerText">100%</span></div>
+        <div>Night: <span id="night">1</span></div>
+      </div>
+    </header>
 
-<header>
-    <h1>Wallet</h1>
-    <div class="add-btn" onclick="openModal('addCard')">+</div>
-</header>
+    <div class="wrap">
+      <div class="main">
+        <div class="scene">
+          <div class="office active" id="office">
+            <div class="hallway"></div>
+            <div class="door left" id="leftDoor"><span>◀</span></div>
+            <div class="door right" id="rightDoor"><span>▶</span></div>
+            <div class="desk"></div>
+          </div>
 
-<main>
-    <div class="card-carousel" id="cardList">
-        <div class="card main-wallet">
-            <div class="card-vendor">Quantum Balance</div>
-            <div class="card-balance" id="walletBalance">$0.00</div>
-            <div class="card-footer card-number">QM ID: 9982-1102</div>
-        </div>
-        </div>
+          <div class="camera" id="camera">
+            <div class="camFrame">
+              <div class="camView">
+                <div class="camTop">
+                  <div>CAMERA FEED</div>
+                  <div id="camClock">12 AM</div>
+                </div>
+                <div class="camName" id="camName">CAM 1A - Show Stage</div>
+                <div class="camDesc" id="camDesc">Everything looks calm. Watch the map and keep an eye on the animatronics.</div>
+                <div class="camera-feed" id="feed">
+                  Static hum...<br/>
+                  <span class="tiny">No movement detected.</span>
+                </div>
+              </div>
 
-    <div class="actions">
-        <button class="btn" onclick="openModal('sendMoney')"><span>↑</span> Send Money</button>
-        <button class="btn" onclick="openModal('payout')"><span>↓</span> Payout to Card</button>
-    </div>
-
-    <div class="tx-list" id="txList">
-        <h3 style="font-size: 22px; margin: 0 0 15px;">Activity</h3>
-        </div>
-</main>
-
-<div id="addCardModal" class="modal">
-    <div class="modal-header">
-        <span class="cancel" onclick="closeModals()">Cancel</span>
-        <h2>Add Credit/Debit Card</h2>
-        <span class="action-done" onclick="saveCard()">Add</span>
-    </div>
-    <div class="form-group">
-        <label>Cardholder Name</label>
-        <input type="text" id="cardName" placeholder="John Doe">
-    </div>
-    <div class="form-group">
-        <label>Card Details</label>
-        <div id="card-element">
-            <input type="text" id="fakeCardNum" placeholder="1234 5678 9101 1121">
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <input type="text" id="fakeCardExpiry" placeholder="MM/YY" style="width:50%">
-                <input type="text" id="fakeCardCvc" placeholder="CVC" style="width:50%">
+              <div class="camPanel">
+                <h3>CAMERAS</h3>
+                <div class="camList" id="camButtons"></div>
+                <div class="small" style="margin-top:12px">
+                  Watching Pirate Cove slows Foxy down. Cameras drain power.
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div class="overlay" id="overlay">
+            <div>
+              <h1 id="overlayTitle">6 AM</h1>
+              <p id="overlayText">You survived the night.</p>
+            </div>
+          </div>
         </div>
-        <p style="font-size:12px; color:var(--ios-gray); margin-top:10px;">Your card data is tokenized securely via QuantumPay. We never store your full card number.</p>
-    </div>
-</div>
 
-<div id="sendMoneyModal" class="modal">
-    <div class="modal-header">
-        <span class="cancel" onclick="closeModals()">Cancel</span>
-        <h2>Send Money</h2>
-        <span class="action-done" onclick="handleSendMoney()">Send</span>
-    </div>
-    <div class="form-group">
-        <label>Recipient ID or Phone</label>
-        <input type="text" id="sendTo" placeholder="e.g. 555-0199 or user@email.com">
-    </div>
-    <div class="form-group">
-        <label>Amount ($)</label>
-        <input type="number" id="sendAmount" placeholder="0.00">
-    </div>
-</div>
+        <div class="controls">
+          <div class="group">
+            <button id="toggleCam">Open Camera</button>
+            <button id="toggleLeft">Left Door: Open</button>
+            <button id="toggleRight">Right Door: Open</button>
+          </div>
+          <div class="group">
+            <button id="restart">Restart Night</button>
+          </div>
+        </div>
 
-<div id="payoutModal" class="modal">
-    <div class="modal-header">
-        <span class="cancel" onclick="closeModals()">Cancel</span>
-        <h2>Payout to Card</h2>
-        <span class="action-done" onclick="handlePayout()">Withdraw</span>
-    </div>
-    <div class="form-group">
-        <label>Withdraw From</label>
-        <input type="text" value="Quantum Balance" disabled>
-    </div>
-    <div class="form-group">
-        <label>Withdraw To</label>
-        <select id="payoutCardSelect" style="background: #2c2c2e; border: 0.5px solid #3a3a3c; border-radius: 10px; padding: 15px; color: #fff; font-size: 17px; width: 100%;">
-            <option value="">Select a card...</option>
-            </select>
-    </div>
-    <div class="form-group">
-        <label>Amount ($)</label>
-        <input type="number" id="payoutAmount" placeholder="0.00">
-    </div>
-</div>
+        <div class="status">
+          <div class="meter" id="powerBar"><div></div></div>
+          <div class="log" id="log">Welcome to the night shift.
+Use the cameras, manage power, and survive until 6 AM.</div>
+        </div>
+      </div>
 
-<nav>
-    <div style="color: var(--ios-blue); text-align:center; font-size:24px;">💳<br><span style="font-size:10px;">Wallet</span></div>
-    <div style="color: var(--ios-gray); text-align:center; font-size:24px;">📊<br><span style="font-size:10px;">Analytics</span></div>
-    <div style="color: var(--ios-gray); text-align:center; font-size:24px;">⚙️<br><span style="font-size:10px;">Settings</span></div>
-</nav>
+      <div class="side">
+        <div class="card">
+          <h3>How it works</h3>
+          <div class="small">
+            Doors block attacks at the left and right hallways.
+            Cameras help track movement, but they cost power.
+            If an animatronic reaches your side with the door open, it is game over.
+          </div>
+        </div>
 
-<script>
-    // --- Mock Backend State ---
-    // In a real app, this data comes from your database API
-    let walletState = JSON.parse(localStorage.getItem('quantumWalletRealMock')) || {
-        balance: 1500.00, // Available digital balance
-        externalCards: [], // Stored Card Tokens (NOT raw numbers)
-        transactions: [
-            { id: 1, type: 'dep', title: 'Salary Check', date: 'Oct 28', amt: 3200.00 },
-            { id: 2, type: 'send', title: 'To: @brian', date: 'Yesterday', amt: -55.00 },
-        ]
+        <div class="card">
+          <h3>Animatronics</h3>
+          <div class="anim" id="animList"></div>
+        </div>
+
+        <div class="card">
+          <h3>Controls</h3>
+          <div class="small">
+            Camera toggle: open/close the monitor.<br/>
+            Door buttons: keep each side shut.<br/>
+            Camera buttons: choose a location to watch.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cams = {
+      "CAM 1A": { name: "CAM 1A - Show Stage", desc: "The main stage. Freddy, Bonnie, and Chica start here.", feed: "A quiet stage. All three animatronics are present." },
+      "CAM 1B": { name: "CAM 1B - Dining Area", desc: "Tables, balloons, and wandering shadows.", feed: "Empty tables... for now." },
+      "CAM 2A": { name: "CAM 2A - West Hall", desc: "The left hallway leading toward your office.", feed: "The hall is dark and narrow." },
+      "CAM 2B": { name: "CAM 2B - East Hall", desc: "The right hallway leading toward your office.", feed: "A cold, silent corridor." },
+      "CAM 4A": { name: "CAM 4A - Pirate Cove", desc: "Foxy's hiding place. Keep checking here.", feed: "The curtain is closed. For now." },
+      "CAM 3":  { name: "CAM 3 - Kitchen", desc: "No camera image. You can only hear noises here.", feed: "Audio only... metallic clanging." },
+      "CAM 5":  { name: "CAM 5 - West Hall Corner", desc: "A corner near the left-side approach.", feed: "A shadow flickers at the edge." }
     };
 
-    function saveState() {
-        localStorage.setItem('quantumWalletRealMock', JSON.stringify(walletState));
-        render();
+    const animDefs = {
+      bonnie: {
+        label: "Bonnie",
+        route: ["CAM 1A", "CAM 1B", "CAM 2A", "LEFT_DOOR"],
+        speed: 0.13
+      },
+      chica: {
+        label: "Chica",
+        route: ["CAM 1A", "CAM 1B", "CAM 3", "CAM 2B", "RIGHT_DOOR"],
+        speed: 0.11
+      },
+      freddy: {
+        label: "Freddy",
+        route: ["CAM 1A", "CAM 1B", "CAM 2B", "RIGHT_DOOR"],
+        speed: 0.07
+      },
+      foxy: {
+        label: "Foxy",
+        route: ["CAM 4A", "CAM 2A", "LEFT_DOOR"],
+        speed: 0.16
+      }
+    };
+
+    const state = {
+      running: true,
+      over: false,
+      cameraOpen: false,
+      currentCam: "CAM 1A",
+      leftDoorClosed: false,
+      rightDoorClosed: false,
+      power: 100,
+      hour: 12,
+      minutes: 0,
+      elapsed: 0,
+      night: 1,
+      anims: {
+        bonnie: { pos: 0, timer: 0, aggression: 1 },
+        chica: { pos: 0, timer: 0, aggression: 1 },
+        freddy: { pos: 0, timer: 0, aggression: 1 },
+        foxy: { pos: 0, timer: 0, aggression: 1, watch: 0 }
+      }
+    };
+
+    const ui = {
+      time: document.getElementById("time"),
+      night: document.getElementById("night"),
+      powerText: document.getElementById("powerText"),
+      powerBar: document.getElementById("powerBar"),
+      log: document.getElementById("log"),
+      office: document.getElementById("office"),
+      camera: document.getElementById("camera"),
+      camName: document.getElementById("camName"),
+      camDesc: document.getElementById("camDesc"),
+      feed: document.getElementById("feed"),
+      camButtons: document.getElementById("camButtons"),
+      toggleCam: document.getElementById("toggleCam"),
+      toggleLeft: document.getElementById("toggleLeft"),
+      toggleRight: document.getElementById("toggleRight"),
+      restart: document.getElementById("restart"),
+      overlay: document.getElementById("overlay"),
+      overlayTitle: document.getElementById("overlayTitle"),
+      overlayText: document.getElementById("overlayText"),
+      camClock: document.getElementById("camClock"),
+      animList: document.getElementById("animList"),
+      leftDoor: document.getElementById("leftDoor"),
+      rightDoor: document.getElementById("rightDoor")
+    };
+
+    function log(msg){
+      ui.log.textContent = msg + "\n\n" + ui.log.textContent.split("\n\n").slice(0,2).join("\n\n");
     }
 
-    // --- UI Logic ---
-    function openModal(type) {
-        document.getElementById(type + 'Modal').classList.add('active');
-        if(type === 'payout') populatePayoutCards();
+    function setOverlay(show, title="", text=""){
+      ui.overlay.classList.toggle("active", show);
+      if(show){
+        ui.overlayTitle.textContent = title;
+        ui.overlayText.textContent = text;
+      }
     }
 
-    function closeModals() {
-        document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+    function updateClock(){
+      const hourNames = ["12 AM","1 AM","2 AM","3 AM","4 AM","5 AM","6 AM"];
+      ui.time.textContent = hourNames[Math.min(state.hour - 12, 6)];
+      ui.camClock.textContent = ui.time.textContent;
+      ui.night.textContent = state.night;
     }
 
-    function populatePayoutCards() {
-        const select = document.getElementById('payoutCardSelect');
-        select.innerHTML = '<option value="">Select a card...</option>';
-        walletState.externalCards.forEach(card => {
-            select.innerHTML += `<option value="${card.token}">${card.brand} •••• ${card.last4}</option>`;
+    function updatePowerUI(){
+      ui.powerText.textContent = Math.max(0, Math.round(state.power)) + "%";
+      ui.powerBar.firstElementChild.style.width = Math.max(0, state.power) + "%";
+      ui.powerBar.classList.toggle("power-low", state.power <= 35 && state.power > 0);
+      ui.powerBar.classList.toggle("power-empty", state.power <= 0);
+    }
+
+    function updateDoors(){
+      ui.toggleLeft.textContent = `Left Door: ${state.leftDoorClosed ? "Closed" : "Open"}`;
+      ui.toggleRight.textContent = `Right Door: ${state.rightDoorClosed ? "Closed" : "Open"}`;
+      ui.leftDoor.className = "door left " + (state.leftDoorClosed ? "closed" : "open");
+      ui.rightDoor.className = "door right " + (state.rightDoorClosed ? "closed" : "open");
+    }
+
+    function updateCameraUI(){
+      ui.toggleCam.textContent = state.cameraOpen ? "Close Camera" : "Open Camera";
+      ui.office.classList.toggle("active", !state.cameraOpen);
+      ui.camera.classList.toggle("active", state.cameraOpen);
+
+      [...ui.camButtons.children].forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.cam === state.currentCam);
+      });
+
+      const cam = cams[state.currentCam];
+      ui.camName.textContent = cam.name;
+      ui.camDesc.textContent = cam.desc;
+      const visible = visibleAnimatronics();
+      if(visible.length){
+        ui.feed.innerHTML = visible.join("<br>");
+      } else {
+        ui.feed.innerHTML = cam.feed + '<span class="tiny">No movement detected.</span>';
+      }
+    }
+
+    function visibleAnimatronics(){
+      const list = [];
+      for(const key of Object.keys(state.anims)){
+        const a = state.anims[key];
+        const def = animDefs[key];
+        const location = def.route[Math.min(a.pos, def.route.length - 1)];
+        if(state.cameraOpen && state.currentCam === location && location !== "LEFT_DOOR" && location !== "RIGHT_DOOR"){
+          list.push(`👁️ ${def.label} is here.`);
+        }
+      }
+      return list;
+    }
+
+    function renderAnimList(){
+      ui.animList.innerHTML = "";
+      for(const key of Object.keys(state.anims)){
+        const a = state.anims[key];
+        const def = animDefs[key];
+        const location = def.route[Math.min(a.pos, def.route.length - 1)];
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerHTML = `<span>${def.label}</span><span class="tag">${location}</span>`;
+        ui.animList.appendChild(row);
+      }
+    }
+
+    function buildCameraButtons(){
+      ui.camButtons.innerHTML = "";
+      Object.keys(cams).forEach(camId => {
+        const btn = document.createElement("button");
+        btn.textContent = cams[camId].name;
+        btn.dataset.cam = camId;
+        btn.addEventListener("click", () => {
+          state.currentCam = camId;
+          if(state.cameraOpen) {
+            state.power = Math.max(0, state.power - 0.2);
+            if(camId === "CAM 4A") state.anims.foxy.watch = 4;
+          }
+          updateCameraUI();
         });
+        ui.camButtons.appendChild(btn);
+      });
     }
 
-    // --- API/Simulation Logic ---
-
-    async function saveCard() {
-        // --- REAL WORLD MECHANIC ---
-        // 1. Send raw card details (name, num, expiry, cvc) directly to Stripe API.
-        // 2. Stripe returns a secure 'token' (e.g., 'tok_1Nabcdef...').
-        // 3. Send that token and John Doe's name to YOUR backend.
-        // 4. Backend stores the token, NOT the card number.
-
-        const name = document.getElementById('cardName').value;
-        const fakeNum = document.getElementById('fakeCardNum').value; // In real life, use Stripe Elements
-
-        if (!name || !fakeNum) { alert('Please enter card details'); return; }
-
-        // MOCKING THE TOKENIZATION
-        // We simulate getting a token from a processor
-        const mockToken = 'tok_mock_' + Date.now();
-        const last4 = fakeNum.slice(-4);
-        const brand = (fakeNum[0] === '4') ? 'Visa' : 'Mastercard';
-
-        // Saving the tokenized card to state
-        walletState.externalCards.push({ 
-            token: mockToken, 
-            name: name,
-            brand: brand,
-            last4: last4
-        });
-
-        saveState();
-        closeModals();
-        alert(`Success: Card •••• ${last4} was tokenized and added securely.`);
+    function moveAnim(key){
+      const a = state.anims[key];
+      const def = animDefs[key];
+      if(a.pos >= def.route.length - 1) return;
+      a.pos++;
+      a.timer = 0;
+      if(key === "foxy") a.watch = 0;
+      const loc = def.route[a.pos];
+      if(loc === "LEFT_DOOR" && !state.leftDoorClosed) return triggerLoss(`${def.label} got through the left door.`);
+      if(loc === "RIGHT_DOOR" && !state.rightDoorClosed) return triggerLoss(`${def.label} got through the right door.`);
+      log(`${def.label} moved to ${loc.replace("_"," ").replace("DOOR","Door")}.`);
     }
 
-    async function handleSendMoney() {
-        const to = document.getElementById('sendTo').value;
-        const amt = parseFloat(document.getElementById('sendAmount').value);
-
-        if (!to || isNaN(amt) || amt <= 0) { alert('Invalid details'); return; }
-        if (amt > walletState.balance) { alert('Insufficient funds in Quantum Balance.'); return; }
-
-        // --- REAL WORLD MECHANIC ---
-        // Send request to backend: { recipient: to, amount: amt, source: 'digital_wallet' }
-        // Backend verifies recipient, checks balance, moves funds in database, returns success.
-
-        // MOCKING THE BACKEND TRANSFER
-        walletState.balance -= amt;
-        walletState.transactions.unshift({
-            id: Date.now(),
-            type: 'send',
-            title: `To: ${to}`,
-            date: 'Just Now',
-            amt: -amt
-        });
-
-        saveState();
-        closeModals();
+    function triggerLoss(text){
+      if(state.over) return;
+      state.over = true;
+      state.running = false;
+      setOverlay(true, "GAME OVER", text);
+      log(text);
     }
 
-    async function handlePayout() {
-        const cardToken = document.getElementById('payoutCardSelect').value;
-        const amt = parseFloat(document.getElementById('payoutAmount').value);
-
-        if (!cardToken || isNaN(amt) || amt <= 0) { alert('Invalid payout details'); return; }
-        if (amt > walletState.balance) { alert('Insufficient funds'); return; }
-
-        // --- REAL WORLD MECHANIC ---
-        // Send request to backend: { amount: amt, destination_card_token: cardToken }
-        // Backend initiates a payout via processor (e.g., Stripe Payouts API).
-        // Funds are withdrawn from digital balance and sent to the card's banking network.
-
-        // MOCKING THE PAYOUT
-        walletState.balance -= amt;
-        const targetCard = walletState.externalCards.find(c => c.token === cardToken);
-        
-        walletState.transactions.unshift({
-            id: Date.now(),
-            type: 'payout',
-            title: `Payout: ${targetCard.brand} ••${targetCard.last4}`,
-            date: 'Just Now',
-            amt: -amt
-        });
-
-        saveState();
-        closeModals();
-        alert(`Payout of $${amt.toFixed(2)} initiated to •••• ${targetCard.last4}.`);
+    function triggerWin(){
+      if(state.over) return;
+      state.over = true;
+      state.running = false;
+      setOverlay(true, "6 AM", "You survived the night.");
+      log("6 AM. You made it.");
     }
 
-    // --- Rendering ---
-    function render() {
-        // Render Balance
-        document.getElementById('walletBalance').innerText = `$${walletState.balance.toFixed(2)}`;
-
-        // Render External Cards
-        const cardList = document.getElementById('cardList');
-        cardList.innerHTML = `
-            <div class="card main-wallet">
-                <div class="card-vendor">Quantum Balance</div>
-                <div class="card-balance">$${walletState.balance.toFixed(2)}</div>
-                <div class="card-footer card-number">QM ID: 9982-1102</div>
-            </div>
-        `;
-        walletState.externalCards.forEach(card => {
-            cardList.innerHTML += `
-                <div class="card external-card">
-                    <div class="card-vendor">${card.brand}</div>
-                    <div class="card-footer card-number">•••• ${card.last4}</div>
-                </div>
-            `;
-        });
-
-        // Render Transactions
-        const txList = document.getElementById('txList');
-        txList.innerHTML = '<h3 style="font-size: 22px; margin: 0 0 15px;">Activity</h3>';
-        walletState.transactions.forEach(tx => {
-            const icon = (tx.type === 'dep') ? '💰' : (tx.type === 'send' ? '💸' : '🏦');
-            txList.innerHTML += `
-                <div class="tx-item">
-                    <div class="tx-icon">${icon}</div>
-                    <div class="tx-info">
-                        <div class="tx-title">${tx.title}</div>
-                        <div class="tx-subtitle">${tx.date}</div>
-                    </div>
-                    <div class="tx-amt ${tx.amt > 0 ? 'pos' : 'neg'}">
-                        ${tx.amt > 0 ? '+' : ''}${tx.amt.toFixed(2)}
-                    </div>
-                </div>
-            `;
-        });
+    function resetGame(){
+      state.running = true;
+      state.over = false;
+      state.cameraOpen = false;
+      state.currentCam = "CAM 1A";
+      state.leftDoorClosed = false;
+      state.rightDoorClosed = false;
+      state.power = 100;
+      state.hour = 12;
+      state.minutes = 0;
+      state.elapsed = 0;
+      state.anims = {
+        bonnie: { pos: 0, timer: 0, aggression: 1 },
+        chica: { pos: 0, timer: 0, aggression: 1 },
+        freddy: { pos: 0, timer: 0, aggression: 1 },
+        foxy: { pos: 0, timer: 0, aggression: 1, watch: 0 }
+      };
+      ui.log.textContent = "Welcome to the night shift.\nUse the cameras, manage power, and survive until 6 AM.";
+      setOverlay(false);
+      updateClock();
+      updatePowerUI();
+      updateDoors();
+      updateCameraUI();
+      renderAnimList();
+      ui.office.classList.add("active");
+      ui.camera.classList.remove("active");
     }
 
-    // Initial Render
-    render();
-</script>
+    function inGameHour(){
+      // 30 seconds per hour
+      const h = Math.min(6, Math.floor(state.elapsed / 30));
+      state.hour = 12 + h;
+      state.minutes = Math.floor((state.elapsed % 30) * 2);
+    }
+
+    function tick(){
+      if(!state.running) return;
+
+      state.elapsed += 1;
+      inGameHour();
+
+      const camDrain = state.cameraOpen ? 0.55 : 0;
+      const doorDrain = (state.leftDoorClosed ? 0.20 : 0) + (state.rightDoorClosed ? 0.20 : 0);
+      const baseDrain = 0.28;
+      state.power = Math.max(0, state.power - (baseDrain + camDrain + doorDrain));
+
+      if(state.power <= 0){
+        state.leftDoorClosed = false;
+        state.rightDoorClosed = false;
+      }
+
+      // Bonnie
+      {
+        const a = state.anims.bonnie;
+        a.timer++;
+        const speed = animDefs.bonnie.speed + (state.elapsed / 2400);
+        if(a.timer > Math.max(4, Math.floor(10 / speed)) && Math.random() < 0.65 + state.elapsed/360){
+          moveAnim("bonnie");
+        }
+      }
+
+      // Chica
+      {
+        const a = state.anims.chica;
+        a.timer++;
+        const speed = animDefs.chica.speed + (state.elapsed / 2600);
+        if(a.timer > Math.max(5, Math.floor(11 / speed)) && Math.random() < 0.62 + state.elapsed/380){
+          moveAnim("chica");
+        }
+      }
+
+      // Freddy, slower but more persistent later
+      {
+        const a = state.anims.freddy;
+        a.timer++;
+        const speed = animDefs.freddy.speed + (state.elapsed / 3200);
+        if(a.timer > Math.max(7, Math.floor(14 / speed)) && Math.random() < 0.52 + state.elapsed/420){
+          moveAnim("freddy");
+        }
+      }
+
+      // Foxy: gets faster if camera isn't on Pirate Cove
+      {
+        const a = state.anims.foxy;
+        a.timer++;
+        const watchingCove = state.cameraOpen && state.currentCam === "CAM 4A";
+        if(watchingCove){
+          a.watch = 4;
+        } else {
+          a.watch = Math.max(0, a.watch - 1);
+        }
+        const foxChance = watchingCove ? 0.10 : 0.80;
+        const foxDelay = watchingCove ? 10 : 4;
+        if(a.timer >= foxDelay && Math.random() < foxChance){
+          moveAnim("foxy");
+        }
+        // if ignored, Foxy can rush the hallway
+        if(a.pos === 1 && !watchingCove && a.timer > 7 && Math.random() < 0.35){
+          moveAnim("foxy");
+        }
+      }
+
+      // Attack checks
+      const bonnieLoc = animDefs.bonnie.route[state.anims.bonnie.pos];
+      const chicaLoc = animDefs.chica.route[state.anims.chica.pos];
+      const freddyLoc = animDefs.freddy.route[state.anims.freddy.pos];
+      const foxyLoc = animDefs.foxy.route[state.anims.foxy.pos];
+
+      if(bonnieLoc === "LEFT_DOOR" && !state.leftDoorClosed) return triggerLoss("Bonnie got you from the left.");
+      if(chicaLoc === "RIGHT_DOOR" && !state.rightDoorClosed) return triggerLoss("Chica got you from the right.");
+      if(freddyLoc === "RIGHT_DOOR" && !state.rightDoorClosed && state.power > 0) return triggerLoss("Freddy entered through the right side.");
+      if(foxyLoc === "LEFT_DOOR" && !state.leftDoorClosed) return triggerLoss("Foxy sprinted into the office.");
+
+      updateClock();
+      updatePowerUI();
+      updateDoors();
+      updateCameraUI();
+      renderAnimList();
+
+      if(state.hour >= 18) triggerWin();
+
+      if(state.power <= 0 && !state.over){
+        log("Power is out. Stay calm.");
+      }
+    }
+
+    ui.toggleCam.addEventListener("click", () => {
+      if(state.over) return;
+      state.cameraOpen = !state.cameraOpen;
+      if(state.cameraOpen && state.currentCam === "CAM 4A") state.anims.foxy.watch = 4;
+      updateCameraUI();
+    });
+
+    ui.toggleLeft.addEventListener("click", () => {
+      if(state.over) return;
+      state.leftDoorClosed = !state.leftDoorClosed;
+      updateDoors();
+      state.power = Math.max(0, state.power - 0.1);
+    });
+
+    ui.toggleRight.addEventListener("click", () => {
+      if(state.over) return;
+      state.rightDoorClosed = !state.rightDoorClosed;
+      updateDoors();
+      state.power = Math.max(0, state.power - 0.1);
+    });
+
+    ui.restart.addEventListener("click", resetGame);
+
+    buildCameraButtons();
+    resetGame();
+    setInterval(tick, 1000);
+  </script>
 </body>
 </html>
